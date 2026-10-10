@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CodeQuest</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<meta name="theme-color" content="#14172b">
+<style>
+:root{--bg:#14172b;--card:#1e2240;--ink:#f1f0ff;--mute:#9a9cc4;--gold:#ffc24b;--coral:#ff6b6b;--teal:#3ddbc0;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:light){:root:not([data-theme="dark"]){--bg:#f3f2ff;--card:#fff;--ink:#1b1d3a;--mute:#5d5f86}}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 "Trebuchet MS",system-ui,sans-serif;max-width:640px;margin:auto;padding:14px 14px 90px}
+h1{font-size:26px;margin:4px 0}h2{font-size:18px;margin:0 0 10px}
+.card{background:var(--card);border-radius:18px;padding:16px;margin:12px 0}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.sp{justify-content:space-between}
+.lvl{font-size:44px;font-weight:800;color:var(--gold);line-height:1}
+.bar{height:12px;background:#0003;border-radius:9px;overflow:hidden}.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--teal),var(--gold));width:0;transition:width .5s}
+.mute{color:var(--mute);font-size:14px}
+button{font:inherit;border:0;border-radius:12px;padding:10px 14px;background:var(--gold);color:#1b1d3a;font-weight:700;cursor:pointer;min-height:44px}
+button.alt{background:#8884;color:var(--ink)}button.del{background:var(--coral);color:#fff}
+.logos{display:flex;gap:10px;overflow-x:auto;padding-bottom:4px}
+.lg{flex:0 0 auto;width:76px;text-align:center;border-radius:14px;padding:8px 4px;border:2px solid transparent;cursor:pointer;background:#0002}
+.lg.on{border-color:var(--gold)}.lg b{display:grid;place-items:center;width:44px;height:44px;margin:0 auto 4px;border-radius:12px;font-size:15px;color:#fff}
+.q{display:flex;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid #8883}
+.q:last-child{border:0}.q input{width:26px;height:26px;accent-color:var(--teal)}
+.coach{border-left:4px solid var(--teal);padding-left:12px}
+pre{background:#0006;color:#e9e8ff;padding:12px;border-radius:12px;overflow-x:auto;font-size:13px;margin:8px 0}
+textarea{width:100%;height:150px;background:#0006;color:#e9e8ff;border:0;border-radius:12px;padding:10px;font:13px/1.4 monospace}
+iframe{width:100%;height:170px;border:0;border-radius:12px;background:#fff;margin-top:8px}
+.days{display:flex;gap:6px;align-items:flex-end;height:110px}
+.days div{flex:1;text-align:center;font-size:11px;color:var(--mute)}
+.days span{display:block;background:var(--teal);border-radius:6px 6px 0 0;min-height:3px;margin-bottom:4px}
+input[type=time]{font:inherit;padding:8px;border-radius:10px;border:0;background:#8884;color:var(--ink)}
+#toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--gold);color:#1b1d3a;padding:10px 18px;border-radius:20px;font-weight:700;opacity:0;transition:.3s;pointer-events:none}
+#toast.s{opacity:1}
+</style></head><body>
+<h1>CodeQuest</h1>
+<div class="mute">Level up from beginner to expert, one day at a time.</div>
+
+<div class="card">
+  <div class="row sp"><div><div class="lvl" id="lv">1</div><div id="rank" style="font-weight:700"></div></div>
+  <div style="text-align:right"><div id="xp" style="font-size:22px;font-weight:800"></div><div class="mute" id="streak"></div></div></div>
+  <div class="bar" style="margin-top:12px"><i id="fill"></i></div>
+  <div class="mute" id="next" style="margin-top:6px"></div>
+</div>
+
+<div class="card"><h2>Choose your path</h2><div class="logos" id="logos"></div></div>
+
+<div class="card coach"><h2>Coach says</h2>
+  <div id="tip"></div><pre id="code"></pre>
+  <div class="row"><button id="learn">I learned this (+15 XP)</button><button class="alt" id="nextTip">Next lesson</button></div>
+</div>
+
+<div class="card"><h2>Today's quests</h2><div id="quests"></div></div>
+
+<div class="card"><h2>Build a website</h2>
+  <textarea id="ed" spellcheck="false"></textarea>
+  <div class="row" style="margin-top:8px"><button id="run">Run</button><button class="alt" id="built">I built something (+30 XP)</button></div>
+  <iframe id="pv" sandbox title="Preview"></iframe>
+</div>
+
+<div class="card"><h2>Last 7 days</h2><div class="days" id="days"></div><div class="mute" id="verdict" style="margin-top:8px"></div></div>
+
+<div class="card"><h2>Daily reminder</h2>
+  <div class="row"><input type="time" id="rt" value="19:00"><button id="rem">Turn on</button></div>
+  <div class="mute" style="margin-top:6px">Alerts work while this page is open. For alerts when the app is closed, it needs to be packaged as a native Android app.</div>
+</div>
+
+<div class="card"><h2>Progress</h2>
+  <div class="row"><button id="save">Save progress</button><button class="del" id="reset">Delete progress</button></div>
+  <div class="mute" style="margin-top:6px" id="saved"></div>
+</div>
+
+<div class="card"><h2>Career ladder</h2><div id="ladder" class="mute"></div></div>
+<div id="toast"></div>
+
+<script>
+const LANGS={
+ Python:{c:"#3776ab",t:[["Variables store values. Practice naming them clearly.","name = 'Sam'\nage = 25\nprint(name, age)"],["Loops repeat work so you don't have to.","for i in range(3):\n    print('Day', i+1)"],["Functions package logic you can reuse.","def greet(n):\n    return 'Hi ' + n\nprint(greet('Sam'))"]]},
+ Java:{c:"#e76f00",t:[["Every Java program starts in a main method.","public class Main {\n  public static void main(String[] a){\n    System.out.println(\"Hello\");\n  }\n}"],["Types are strict: declare what each variable holds.","int age = 25;\nString name = \"Sam\";"],["Classes model real things in your app.","class User {\n  String name;\n  User(String n){ name = n; }\n}"]]},
+ HTML:{c:"#e44d26",t:[["HTML gives a page its structure. Headings, text, links.","<h1>My site</h1>\n<p>Hello world</p>"],["Links connect pages together.","<a href=\"https://example.com\">Visit</a>"],["Lists organize content.","<ul>\n <li>Learn</li>\n <li>Build</li>\n</ul>"]]},
+ JS:{c:"#c9a800",t:[["JavaScript makes pages react to people.","let n = 0;\nn = n + 1;\nconsole.log(n);"],["Functions respond to clicks.","button.onclick = () => {\n  alert('Clicked');\n};"],["Arrays hold lists of things.","const L = ['a','b'];\nL.push('c');"]]}
+};
+const ABBR={Python:"Py",Java:"Jv",HTML:"</>",JS:"JS"};
+const RANKS=[["Beginner",0],["Junior",300],["Mid-level",900],["Senior",2000],["Expert",4000]];
+const QUESTS=[["Code for 30 minutes",20],["Finish one coach lesson",15],["Fix one bug",20],["Read someone else's code",10],["Push or save your work",10]];
+const START="<h1>Hello, I'm Sam</h1>\n<p>I'm learning to code.</p>\n<style>body{font-family:sans-serif;padding:16px}h1{color:#e44d26}</style>";
+const KEY="codequest_v1";
+const fresh=()=>({xp:0,lang:"Python",tip:0,days:{},done:{},code:START,last:null,remind:null,savedAt:null});
+let S=fresh();
+const $=id=>document.getElementById(id);
+const today=()=>new Date().toISOString().slice(0,10);
+function load(){try{const r=localStorage.getItem(KEY);if(r){S=Object.assign(fresh(),JSON.parse(r));$("saved").textContent="Loaded your saved progress."}}catch(e){}}
+function persist(){try{S.savedAt=new Date().toLocaleString();localStorage.setItem(KEY,JSON.stringify(S));$("saved").textContent="Saved "+S.savedAt;return true}catch(e){$("saved").textContent="Saving isn't available in this browser.";return false}}
+function toast(m){const t=$("toast");t.textContent=m;t.classList.add("s");setTimeout(()=>t.classList.remove("s"),1800)}
+function rankIdx(){let i=0;RANKS.forEach((r,k)=>{if(S.xp>=r[1])i=k});return i}
+function add(n){const old=rankIdx();S.xp=Math.max(0,S.xp+n);const d=today();S.days[d]=Math.max(0,(S.days[d]||0)+n);
+  if(rankIdx()>old)toast("Rank up: "+RANKS[rankIdx()][0]+"!");else toast((n>0?"+":"")+n+" XP");persist();render()}
+function streak(){let s=0,d=new Date();for(;;){const k=d.toISOString().slice(0,10);if((S.days[k]||0)>0){s++;d.setDate(d.getDate()-1)}else if(k===today()){d.setDate(d.getDate()-1)}else break}return s}
+function render(){
+  const i=rankIdx(),lv=Math.floor(S.xp/100)+1;
+  $("lv").textContent="Lv "+lv;$("rank").textContent=RANKS[i][0]+" developer";$("xp").textContent=S.xp+" XP";
+  $("streak").textContent=streak()+"-day streak";
+  const lo=RANKS[i][1],hi=RANKS[i+1]?RANKS[i+1][1]:null;
+  if(hi){$("fill").style.width=((S.xp-lo)/(hi-lo)*100)+"%";$("next").textContent=(hi-S.xp)+" XP to "+RANKS[i+1][0]}else{$("fill").style.width="100%";$("next").textContent="Top rank reached. Keep building."}
+  $("logos").innerHTML=Object.keys(LANGS).map(k=>`<div class="lg ${k===S.lang?"on":""}" data-l="${k}"><b style="background:${LANGS[k].c}">${ABBR[k]}</b><span style="font-size:13px">${k}</span></div>`).join("");
+  document.querySelectorAll(".lg").forEach(e=>e.onclick=()=>{S.lang=e.dataset.l;S.tip=0;render()});
+  const T=LANGS[S.lang].t,t=T[S.tip%T.length];$("tip").textContent=t[0];$("code").textContent=t[1];
+  const d=today(),dn=S.done[d]||[];
+  $("quests").innerHTML=QUESTS.map((q,k)=>`<label class="q"><input type="checkbox" data-k="${k}" ${dn.includes(k)?"checked":""}><span style="flex:1">${q[0]}</span><span class="mute">+${q[1]}</span></label>`).join("");
+  document.querySelectorAll(".q input").forEach(e=>e.onchange=()=>{const k=+e.dataset.k;S.done[d]=S.done[d]||[];
+    if(e.checked){S.done[d].push(k);add(QUESTS[k][1])}else{S.done[d]=S.done[d].filter(x=>x!==k);add(-QUESTS[k][1])}});
+  const L=[];let tot=0,act=0;
+  for(let n=6;n>=0;n--){const x=new Date();x.setDate(x.getDate()-n);const k=x.toISOString().slice(0,10);const v=S.days[k]||0;tot+=v;if(v>0)act++;L.push([["Su","Mo","Tu","We","Th","Fr","Sa"][x.getDay()],v])}
+  const mx=Math.max(40,...L.map(a=>a[1]));
+  $("days").innerHTML=L.map(a=>`<div><span style="height:${a[1]/mx*80}px"></span>${a[0]}<br>${a[1]}</div>`).join("");
+  $("verdict").textContent=act>=5?"Great week: "+act+" active days. You're leveling up.":act>=3?"Good start: "+act+" active days. Aim for 5.":"Only "+act+" active day(s). Do one small quest today to restart.";
+  $("ladder").innerHTML=RANKS.map((r,k)=>(k<=i?"✔ ":"○ ")+r[0]+" ("+r[1]+" XP)").join("<br>")+"<br><br>Tip: from Junior up, keep your built projects ready to show in interviews.";
+}
+$("learn").onclick=()=>add(15);
+$("nextTip").onclick=()=>{S.tip++;render()};
+$("run").onclick=()=>{S.code=$("ed").value;$("pv").srcdoc=S.code};
+$("built").onclick=()=>add(30);
+$("save").onclick=()=>{S.code=$("ed").value;if(persist())toast("Progress saved")};
+$("reset").onclick=()=>{if(confirm("Delete all progress? This can't be undone.")){try{localStorage.removeItem(KEY)}catch(e){}S=fresh();$("ed").value=S.code;$("pv").srcdoc=S.code;$("saved").textContent="Progress deleted.";render()}};
+let timer=null;
+function arm(){clearInterval(timer);if(!S.remind)return;let fired="";timer=setInterval(()=>{const n=new Date(),hm=String(n.getHours()).padStart(2,"0")+":"+String(n.getMinutes()).padStart(2,"0");
+  if(hm===S.remind&&fired!==today()+hm){fired=today()+hm;try{new Notification("CodeQuest",{body:"Time to code. Finish one quest today."})}catch(e){toast("Time to code!")}}},20000)}
+$("rem").onclick=async()=>{
+  if(S.remind){S.remind=null;persist();$("rem").textContent="Turn on";clearInterval(timer);toast("Reminder off");return}
+  try{const p=await Notification.requestPermission();if(p!=="granted"){toast("Allow notifications to use reminders");return}}catch(e){toast("Notifications not supported here");return}
+  S.remind=$("rt").value;persist();$("rem").textContent="Turn off ("+S.remind+")";arm();toast("Reminder set for "+S.remind)};
+if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
+load();$("ed").value=S.code;$("pv").srcdoc=S.code;
+if(S.remind){$("rt").value=S.remind;$("rem").textContent="Turn off ("+S.remind+")";arm()}
+render();
+</script></body></html>
